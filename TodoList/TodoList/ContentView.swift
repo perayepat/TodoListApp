@@ -18,37 +18,31 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
+        
             Color.primary
                 .ignoresSafeArea()
-            //            Image("background5")
-            //                .resizable()
-            //                .rotationEffect(.degrees(180))
-            //                .ignoresSafeArea()
-            //                .overlay(
-            //                    LinearGradient(colors: [Color.white,.white.opacity(0.1)], startPoint: .top, endPoint: .bottom)
-            //                )
-            //                .opacity(0.8)
+            BlobView()
+                .offset(y:350)
+                .blur(radius: 10)
+                .opacity(0.8)
+            
             HStack{
                 VStack(alignment: .leading, spacing: 10){
                     Text("Today")
                         .font(.largeTitle.weight(.light))
-                    Text("Tomorrow")
-                        .fontWeight(.light)
                     Spacer()
+                    
                 }
                 .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .frame(alignment: .leading)
                 
+                Spacer()
                 VStack(alignment: .trailing, spacing: 5){
                     Button {
                         //TODO: - Add feature
                     } label: {
-                        Image(systemName: "plus")
+                        Image(systemName: "magnifyingglass")
                             .imageScale(.large)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 2, style: .continuous)
-                                    .stroke(lineWidth: 1.5)
-                            )
                             .foregroundColor(Color("DarkMode"))
                     }
                     Rectangle()
@@ -63,7 +57,7 @@ struct ContentView: View {
                     Spacer()
                 }
                 .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
+                .frame(alignment: .trailing)
             }
             .foregroundColor(Color("DarkMode"))
             //TODO: - Add Fade when scrolling up
@@ -73,6 +67,7 @@ struct ContentView: View {
                         Text("Title")
                             .font(.title)
                             .padding(.bottom,10)
+                            .foregroundStyle(.secondary)
                         Spacer()
                         Text("Time")
                             .font(.caption)
@@ -81,12 +76,13 @@ struct ContentView: View {
                     Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit, do eiusmod tempor incididunt ut labore et dolore aliqua.v")
                         .font(.callout)
                         .fontWeight(.light)
+                        .lineLimit(2)
                 }
                 .padding()
                 .rotationEffect(.degrees(180))
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
             }
-            .foregroundColor(Color("DarkMode"))
+//            .foregroundColor(Color("DarkMode"))
             .offset(y:-120)
             .frame(height: 450)
             .padding()
