@@ -59,9 +59,9 @@
 		4361721A28B3E44F0034527C /* TodoList */ = {
 			isa = PBXGroup;
 			children = (
-				4361722E28B3FB970034527C /* Components */,
 				4361721B28B3E44F0034527C /* TodoListApp.swift */,
-				4361721D28B3E44F0034527C /* ContentView.swift */,
+				4361723328B4A06A0034527C /* Views */,
+				4361722E28B3FB970034527C /* Components */,
 				4361721F28B3E4500034527C /* Assets.xcassets */,
 				4361722428B3E4500034527C /* Persistence.swift */,
 				4361722628B3E4500034527C /* TodoList.xcdatamodeld */,
@@ -85,6 +85,14 @@
 				4361723128B3FBF10034527C /* Extensions.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		4361723328B4A06A0034527C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4361721D28B3E44F0034527C /* ContentView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

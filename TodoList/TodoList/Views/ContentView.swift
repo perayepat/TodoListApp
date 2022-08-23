@@ -10,17 +10,16 @@ import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @FocusState var showKeyboardView : Bool
+    @State var title: String = ""
+    @State var description: String = ""
+    @State var date: String = ""
     
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
     
     var body: some View {
         ZStack {
-        
-            Color.primary
-                .ignoresSafeArea()
+            
+            
             BlobView()
                 .offset(y:350)
                 .blur(radius: 10)
@@ -40,13 +39,15 @@ struct ContentView: View {
                 VStack(alignment: .trailing, spacing: 5){
                     Button {
                         //TODO: - Add feature
+                        showKeyboardView.toggle()
                     } label: {
-                        Image(systemName: "magnifyingglass")
+                        Image(systemName: "plus")
                             .imageScale(.large)
                             .foregroundColor(Color("DarkMode"))
                     }
+                    .tint(.none)
                     Rectangle()
-                        .frame(width: 1, height: 80)
+                        .frame(width: 1, height: 60)
                     Text("Week")
                     Rectangle()
                         .frame(width: 1, height: 10)
@@ -59,7 +60,6 @@ struct ContentView: View {
                 .padding()
                 .frame(alignment: .trailing)
             }
-            .foregroundColor(Color("DarkMode"))
             //TODO: - Add Fade when scrolling up
             ScrollView{
                 VStack(alignment: .leading) {
@@ -67,26 +67,61 @@ struct ContentView: View {
                         Text("Title")
                             .font(.title)
                             .padding(.bottom,10)
-                            .foregroundStyle(.secondary)
+                        
                         Spacer()
                         Text("Time")
                             .font(.caption)
                     }
-                        
+                    
                     Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit, do eiusmod tempor incididunt ut labore et dolore aliqua.v")
                         .font(.callout)
                         .fontWeight(.light)
                         .lineLimit(2)
+                    
                 }
                 .padding()
                 .rotationEffect(.degrees(180))
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
             }
-//            .foregroundColor(Color("DarkMode"))
             .offset(y:-120)
             .frame(height: 450)
             .padding()
             .rotationEffect(.degrees(180))
+            //MARK: - New Item View
+            VStack {
+                TextField("Title", text: $title)
+                    .focused($showKeyboardView)
+                    .padding(.horizontal)
+                    .font(.body)
+                    .padding([.horizontal,.top])
+                TextField("Description", text: $description)
+                    .padding(.horizontal)
+                    .font(.caption)
+                    .padding()
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            HStack{
+                                Image(systemName: "calendar.badge.plus")
+                                    .imageScale(.large)
+                                Image(systemName: "eyedropper")
+                                    .imageScale(.large)
+                                Spacer()
+                                Image(systemName: "arrow.up.circle.fill")
+                                    .imageScale(.large)
+                            }
+                            .padding(10)
+                        }
+                    }
+            }
+            .background(.thinMaterial)
+            .cornerRadius(30,corners: [.topLeft,.topRight])
+            .padding(.horizontal,5)
+            .offset(y:showKeyboardView ? 165 : 700)
+            .opacity(showKeyboardView ?  1: 0)
+            .animation(.spring(response: 0.6, dampingFraction: 0.6), value: showKeyboardView)
+            
+  
+            
         }
     }
 }
@@ -98,6 +133,7 @@ struct ContentView_Previews: PreviewProvider {
         ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }
+
 
 
 //private func addItem() {

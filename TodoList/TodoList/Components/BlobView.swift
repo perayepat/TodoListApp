@@ -30,7 +30,7 @@ struct BlobView: View {
         
             .onAppear{
                 ///the parenthesis help with the animtion timing and how much you want it to repeat
-                withAnimation(.linear(duration: 10).repeatForever()){
+                withAnimation(.linear(duration: 10).repeatForever(autoreverses: true)){
                     appear = true
                 }
                
