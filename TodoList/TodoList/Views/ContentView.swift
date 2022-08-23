@@ -9,9 +9,7 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) var moc
-    @FetchRequest(sortDescriptors: []) var tasks: FetchedResults<Task>
-    
+    @Environment(\.managedObjectContext) private var viewContext
     @FocusState var showKeyboardView : Bool
     @State var taskTitle: String = ""
     @State var taskDescription: String = ""
@@ -80,6 +78,10 @@ struct ContentView: View {
                         .font(.callout)
                         .fontWeight(.light)
                         .lineLimit(2)
+                    Button{}label: {
+                        Image("checkmark")
+                            .foregroundColor(.black)
+                    }
                     
                 }
                 .padding()
