@@ -80,6 +80,7 @@ struct ContentView: View {
                                         .foregroundStyle(.black.opacity(0.8))
                                 }
                             }
+
                             VStack {
                                 Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit, do eiusmod tempor incididunt ut labore et dolore aliqua.v")
                                     .font(.footnote)
@@ -95,7 +96,17 @@ struct ContentView: View {
                         .padding()
                         .rotationEffect(.degrees(180))
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
-                        VStack(spacing: 20){
+                        VStack(spacing: 10){
+                            Button {
+                                    //deleting task
+                                    //Saving delete
+                                
+                                
+                            } label: {
+                                Image(systemName: "doc.fill.badge.plus")
+                                    .font(.title3)
+                                    .foregroundColor(.primary)
+                            }
                                 //MARK: - Delete Button
                             Button {
                                     //deleting task
