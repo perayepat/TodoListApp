@@ -9,11 +9,14 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.managedObjectContext) var moc
+    @FetchRequest(sortDescriptors: []) var tasks: FetchedResults<Task>
+    
     @FocusState var showKeyboardView : Bool
-    @State var title: String = ""
-    @State var description: String = ""
-    @State var date: String = ""
+    @State var taskTitle: String = ""
+    @State var taskDescription: String = ""
+    @State var taskDate: String = ""
+    @State private var taskColor = Color.blue.opacity(0.5)
     
     
     var body: some View {
@@ -89,13 +92,14 @@ struct ContentView: View {
             .rotationEffect(.degrees(180))
             //MARK: - New Item View
             VStack {
-                TextField("Title", text: $title)
+                TextField("Title", text: $taskTitle)
                     .focused($showKeyboardView)
                     .padding(.horizontal)
                     .font(.body)
                     .padding([.horizontal,.top])
-                TextField("Description", text: $description)
+                TextField("Description", text: $taskDescription)
                     .padding(.horizontal)
+                    .focused($showKeyboardView)
                     .font(.caption)
                     .padding()
                     .toolbar {
@@ -108,6 +112,7 @@ struct ContentView: View {
                                 Spacer()
                                 Image(systemName: "arrow.up.circle.fill")
                                     .imageScale(.large)
+                                
                             }
                             .padding(10)
                         }
@@ -119,9 +124,7 @@ struct ContentView: View {
             .offset(y:showKeyboardView ? 165 : 700)
             .opacity(showKeyboardView ?  1: 0)
             .animation(.spring(response: 0.6, dampingFraction: 0.6), value: showKeyboardView)
-            
-  
-            
+
         }
     }
 }
@@ -132,6 +135,11 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
+}
+
+enum FocusableFeild: Hashable{
+    case title
+    case description
 }
 
 
