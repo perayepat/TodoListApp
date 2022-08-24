@@ -19,7 +19,7 @@ struct ContentView: View {
     @State var showFull = false
     
     @FocusState var showKeyboardView : Bool
-    @FocusState var focusEditView : Bool?
+    @FocusState var isAddingItem : Bool
     @State var taskTitle: String = ""
     @State var taskDescription: String = ""
     @State var taskDate: String = ""
@@ -28,45 +28,39 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-
-            
             BlobView()
                 .offset(y:350)
                 .blur(radius: 10)
                 .opacity(0.8)
-            
-
                 //MARK: - Header Section
             TopSectionView()
-              
                 //MARK: - Body Section
             ScrollView{
                     //TODO: - Add Fade when scrolling up
                TodayRowCardView
                     .onLongPressGesture(minimumDuration: 1) {
-                        showCard.toggle()
+                        showCard.toggle()  
                     }
             }
-            .offset(y:-120)
+            .offset(y:-100)
             .frame(height: 450)
             .padding()
             .rotationEffect(.degrees(180))
             
             Color.black
                 .ignoresSafeArea()
-                .opacity(showCard ? 0.7: 0)
+                .opacity(showCard||isAddingItem ? 0.7: 0)
+                
                 //MARK: - New Item View
             NewItemPopUp
                 //MARK: - Footer Section
             EditView(show: $showCard)
                 .offset(x: 0, y:showCard ? 360 : 1000)
                 .offset(y: bottomState.height)
-//                .blur(radius: show ? 20 : 0)
             //MARK: Animation
                 .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: bottomState)
                 .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showCard)
                 .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showFull)
-            
             //MARK: Gestures
                 .gesture(
                     DragGesture().onChanged{ value in
@@ -101,9 +95,31 @@ struct ContentView: View {
                         }
                 )
      
+            AddingNewItemButton
+                .offset(x: showCard ? 300:0)
+                .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showCard)
             
         }
-        
+
+    }
+    func showEditView(){
+        showCard.toggle()
+    }
+    
+    var AddingNewItemButton: some View{
+        ZStack {
+            Image(systemName: "plus")
+                .font(.title)
+                .onTapGesture {
+                    isAddingItem.toggle()
+                    showKeyboardView.toggle()
+                }
+            Circle()
+                .stroke(lineWidth: 1)
+                .frame(width: 40, height: 40)
+        }
+        .frame(maxWidth: .infinity,maxHeight: .infinity, alignment: .bottomTrailing)
+        .padding(.horizontal,21)
     }
     
     var NewItemPopUp : some View{
@@ -120,19 +136,17 @@ struct ContentView: View {
                 .padding()
                 .toolbar {
                     ToolbarItemGroup(placement: .keyboard) {
+                        if !isAddingItem{
                         HStack{
-                            Image(systemName: "calendar.badge.plus")
-                                .imageScale(.large)
-                            Image(systemName: "eyedropper")
-                                .imageScale(.large)
                             Spacer()
                             Image(systemName: "arrow.up.circle.fill")
                                 .imageScale(.large)
-                            
+                                .foregroundColor(.black)
                         }
                         .padding(10)
                     }
                 }
+            }
         }
         .background(.thinMaterial)
         .cornerRadius(30,corners: [.topLeft,.topRight])
@@ -259,8 +273,8 @@ struct TopSectionView: View {
     var body: some View {
         HStack{
             VStack(alignment: .leading, spacing: 10){
-                Text("Today")
-                    .font(.largeTitle.weight(.light))
+                Text(Date().addingTimeInterval(600), style: .date)
+                    .font(.title2.weight(.light))
                 Spacer()
                 
             }
@@ -273,13 +287,14 @@ struct TopSectionView: View {
                     //MARK: - Edit Button
                 EditButton()
                     .foregroundColor(.black)
-                Rectangle()
-                    .frame(width: 1, height: 60)
-                Text("Week")
-                Rectangle()
-                    .frame(width: 1, height: 10)
-                Text("Month")
+                
 //                Rectangle()
+//                    .frame(width: 1, height: 60)
+//                Text("Week")
+//                Rectangle()
+//                    .frame(width: 1, height: 10)
+//                Text("Month")
+//             Rectangle()
 //                    .frame(width: 1, height: 10)
 //                Text("Year")
                 Spacer()
