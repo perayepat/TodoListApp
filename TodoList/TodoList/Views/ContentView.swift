@@ -16,6 +16,7 @@ struct ContentView: View {
     /// controls the bottom states anchor positions
     @State var bottomState = CGSize.zero
     @State var showCard = false
+    @State var showFull = false
     
     @FocusState var showKeyboardView : Bool
     @FocusState var focusEditView : Bool?
@@ -57,11 +58,49 @@ struct ContentView: View {
                 //MARK: - New Item View
             NewItemPopUp
                 //MARK: - Footer Section
-
             EditView(show: $showCard)
-                .background(.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                .offset(x: 0, y:showCard ? -60 : 1000)
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: showCard)
+                .offset(x: 0, y:showCard ? 360 : 1000)
+                .offset(y: bottomState.height)
+//                .blur(radius: show ? 20 : 0)
+            //MARK: Animation
+                .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: bottomState)
+                .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showCard)
+                .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showFull)
+            
+            //MARK: Gestures
+                .gesture(
+                    DragGesture().onChanged{ value in
+                        /// store bottom card position
+                        self.bottomState = value.translation
+                        if self.showFull{
+                        self.bottomState .height += -300
+            
+                            ///maximum drag so you dont see the bottom of the card
+                            if self.bottomState.height < -300
+                            {
+                                self.bottomState.height = -300
+                            }
+                        }
+                    }
+                    ///Reset position on drag
+                        .onEnded{ value in
+            
+                            ///dismiss the view with a slide
+                            if self.bottomState.height > 50 {
+                                self.showCard = false
+                            }
+                            ///show full card
+                            if (self.bottomState.height < -100 && !self.showFull) || (self.bottomState.height < -250 && self.showFull){
+                                self.bottomState.height = -300 // show the full card
+                                self.showFull = true
+                            }
+                            else {
+                                self.bottomState = .zero
+                                self.showFull = false
+                            }
+                        }
+                )
+     
             
         }
         
@@ -216,38 +255,6 @@ enum FocusableFeild: Hashable{
 }
 
 
-
-    //private func addItem() {
-    //    withAnimation {
-    //        let newItem = Item(context: viewContext)
-    //        newItem.timestamp = Date()
-    //
-    //        do {
-    //            try viewContext.save()
-    //        } catch {
-    //            // Replace this implementation with code to handle the error appropriately.
-    //            // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-    //            let nsError = error as NSError
-    //            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-    //        }
-    //    }
-    //}
-    //
-    //private func deleteItems(offsets: IndexSet) {
-    //    withAnimation {
-    //        offsets.map { items[$0] }.forEach(viewContext.delete)
-    //
-    //        do {
-    //            try viewContext.save()
-    //        } catch {
-    //            // Replace this implementation with code to handle the error appropriately.
-    //            // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-    //            let nsError = error as NSError
-    //            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-    //        }
-    //    }
-    //}
-
 struct TopSectionView: View {
     var body: some View {
         HStack{
@@ -283,46 +290,4 @@ struct TopSectionView: View {
     }
 }
 
-//
-//
-//    .offset(x: 0, y:showCard ? 360 : 1000)
-//    .offset(y: bottomState.height)
-//    .blur(radius: show ? 20 : 0)
-////MARK: Animation
-//    .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: bottomState)
-//    .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showCard)
-//    .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showFull)
-//
-////MARK: Gestures
-//    .gesture(
-//        DragGesture().onChanged{ value in
-//            /// store bottom card position
-//            self.bottomState = value.translation
-//            if self.showFull{
-//            self.bottomState .height += -300
-//                
-//                ///maximum drag so you dont see the bottom of the card
-//                if self.bottomState.height < -300
-//                {
-//                    self.bottomState.height = -300
-//                }
-//            }
-//        }
-//        ///Reset position on drag
-//            .onEnded{ value in
-//                
-//                ///dismiss the view with a slide
-//                if self.bottomState.height > 50 {
-//                    self.showCard = false
-//                }
-//                ///show full card
-//                if (self.bottomState.height < -100 && !self.showFull) || (self.bottomState.height < -250 && self.showFull){
-//                    self.bottomState.height = -300 // show the full card
-//                    self.showFull = true
-//                }
-//                else {
-//                    self.bottomState = .zero
-//                    self.showFull = false
-//                }
-//            }
-//    )
+
