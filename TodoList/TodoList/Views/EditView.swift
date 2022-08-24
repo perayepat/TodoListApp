@@ -12,6 +12,7 @@ struct EditView: View {
     @Binding var show: Bool
     @State var taskTItle: String = ""
     @State var taskDescription: String = ""
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         ZStack {
@@ -63,6 +64,26 @@ struct EditView: View {
                 Spacer()
             }
             .frame(width: 350, height: 550, alignment: .leading)
+            
+            HStack {
+                Spacer()
+                VStack {
+                    Button{
+                        dismiss()
+                    }label: {
+                        Image(systemName: "xmark")
+                            .font(.body.bold())
+                            .padding(10)
+                            .overlay(
+                                Circle()
+                                    .stroke(lineWidth: 0.5)
+                            )
+                    }
+                    .foregroundStyle(.primary)
+                    Spacer()
+                }
+            }.padding()
+            
             
         }
     }
