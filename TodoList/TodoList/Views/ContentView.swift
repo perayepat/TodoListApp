@@ -13,8 +13,12 @@ struct ContentView: View {
     
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.editMode) var editButton
+    /// controls the bottom states anchor positions
+    @State var bottomState = CGSize.zero
+    @State var showCard = false
     
     @FocusState var showKeyboardView : Bool
+    @FocusState var focusEditView : Bool?
     @State var taskTitle: String = ""
     @State var taskDescription: String = ""
     @State var taskDate: String = ""
@@ -23,25 +27,42 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
+
             
             BlobView()
                 .offset(y:350)
                 .blur(radius: 10)
                 .opacity(0.8)
             
+
+                //MARK: - Header Section
             TopSectionView()
-                //TODO: - Add Fade when scrolling up
-            
+              
+                //MARK: - Body Section
             ScrollView{
+                    //TODO: - Add Fade when scrolling up
                TodayRowCardView
+                    .onLongPressGesture(minimumDuration: 1) {
+                        showCard.toggle()
+                    }
             }
             .offset(y:-120)
             .frame(height: 450)
             .padding()
             .rotationEffect(.degrees(180))
             
+            Color.black
+                .ignoresSafeArea()
+                .opacity(showCard ? 0.7: 0)
                 //MARK: - New Item View
             NewItemPopUp
+                //MARK: - Footer Section
+
+            EditView(show: $showCard)
+                .background(.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .offset(x: 0, y:showCard ? -60 : 1000)
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: showCard)
+            
         }
         
     }
@@ -251,9 +272,9 @@ struct TopSectionView: View {
                 Rectangle()
                     .frame(width: 1, height: 10)
                 Text("Month")
-                Rectangle()
-                    .frame(width: 1, height: 10)
-                Text("Year")
+//                Rectangle()
+//                    .frame(width: 1, height: 10)
+//                Text("Year")
                 Spacer()
             }
             .padding()
