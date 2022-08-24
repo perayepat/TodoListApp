@@ -17,13 +17,29 @@ struct EditView: View {
     var body: some View {
         ZStack {
             VStack(alignment: .leading){
-                Text("Title".uppercased())
-                    .font(.largeTitle)
-                    .bold()
+                HStack {
+                    Text("Title".uppercased())
+                        .font(.largeTitle)
+                        .bold()
+                        .padding()
+                        .foregroundStyle(.secondary)
+                        .opacity(taskTItle.isEmpty ? 0.15: 0)
+                        .animation(.easeInOut, value: taskTItle)
+                    Spacer()
+                    Button{
+                        dismiss()
+                    }label: {
+                        Image(systemName: "xmark")
+                            .font(.body.bold())
+                            .padding(10)
+                            .overlay(
+                                Circle()
+                                    .stroke(lineWidth: 0.5)
+                            )
+                    }
+                    .foregroundStyle(.primary)
                     .padding()
-                    .foregroundStyle(.secondary)
-                    .opacity(taskTItle.isEmpty ? 0.15: 0)
-                    .animation(.easeInOut, value: taskTItle)
+                }
                 
                 Text("Description".uppercased())
                     .padding()
@@ -64,26 +80,7 @@ struct EditView: View {
                 Spacer()
             }
             .frame(width: 350, height: 550, alignment: .leading)
-            
-            HStack {
-                Spacer()
-                VStack {
-                    Button{
-                        dismiss()
-                    }label: {
-                        Image(systemName: "xmark")
-                            .font(.body.bold())
-                            .padding(10)
-                            .overlay(
-                                Circle()
-                                    .stroke(lineWidth: 0.5)
-                            )
-                    }
-                    .foregroundStyle(.primary)
-                    Spacer()
-                }
-            }.padding()
-            
+                        
             
         }
     }

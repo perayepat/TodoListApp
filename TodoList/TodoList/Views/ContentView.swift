@@ -283,4 +283,46 @@ struct TopSectionView: View {
     }
 }
 
-
+//
+//
+//    .offset(x: 0, y:showCard ? 360 : 1000)
+//    .offset(y: bottomState.height)
+//    .blur(radius: show ? 20 : 0)
+////MARK: Animation
+//    .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: bottomState)
+//    .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showCard)
+//    .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showFull)
+//
+////MARK: Gestures
+//    .gesture(
+//        DragGesture().onChanged{ value in
+//            /// store bottom card position
+//            self.bottomState = value.translation
+//            if self.showFull{
+//            self.bottomState .height += -300
+//                
+//                ///maximum drag so you dont see the bottom of the card
+//                if self.bottomState.height < -300
+//                {
+//                    self.bottomState.height = -300
+//                }
+//            }
+//        }
+//        ///Reset position on drag
+//            .onEnded{ value in
+//                
+//                ///dismiss the view with a slide
+//                if self.bottomState.height > 50 {
+//                    self.showCard = false
+//                }
+//                ///show full card
+//                if (self.bottomState.height < -100 && !self.showFull) || (self.bottomState.height < -250 && self.showFull){
+//                    self.bottomState.height = -300 // show the full card
+//                    self.showFull = true
+//                }
+//                else {
+//                    self.bottomState = .zero
+//                    self.showFull = false
+//                }
+//            }
+//    )
