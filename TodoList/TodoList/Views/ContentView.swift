@@ -39,22 +39,26 @@ struct ContentView: View {
             //MARK: - Header Section
             TopSectionView()
             //MARK: - Body Section
-            ScrollView(.vertical){
+            ScrollView(.vertical,showsIndicators: false){
                 switch selectedTab {
                 case .home:
-//                    TodayRowCardView
-//                        .onLongPressGesture(minimumDuration: 1) {
-//                            showCard.toggle()
-//                        }
-                    ForEach(tasks){ task in
-                        TaskCardView(task: task)
-                    }
+                    TodayRowCardView
                 case .archived:
-                    Text("Archived")
+                    ForEach(tasks){ task in
+                        if task.isArchived{
+                            TaskCardView(task: task)
+                                .onTapGesture(count: 2) {
+                                    showCard.toggle()
+                                }
+                        }
+                    }
                 case .done:
-                    Text("Done")
+                    ForEach(tasks){ task in
+                        if task.isCompleted{
+                            TaskCardView(task: task)
+                        }
+                    }
                 }
-                
             }
             .offset(y:10)
             .frame(height: 550)
@@ -186,43 +190,36 @@ struct ContentView: View {
     }
     
     var TodayRowCardView: some View {
-//        HStack(alignment: editButton?.wrappedValue == .active ? .center : .top, spacing: 10){
-//
-//            if editButton?.wrappedValue == .active{
-//
-//                VStack(spacing: 10){
-//                    //MARK: - Archive Button
-//                    Button {
-//                        //deleting task
-//                        //Saving delete
-//                    } label: {
-//                        Image(systemName: "doc.fill.badge.plus")
-//                            .font(.title3)
-//                            .foregroundColor(.primary)
-//                    }
-//                    //MARK: - Delete Button
-//                    Button {
-//                        //deleting task
-//                        //Saving delete
-//
-//
-//                    } label: {
-//                        Image(systemName: "minus.circle.fill")
-//                            .font(.title2)
-//                            .foregroundColor(.red)
-//                    }
-//
-//                }
-//
-//                ForEach(tasks){ task in
-//                    TaskCardView(task: task)
-//                }
-//            }else{
-                ForEach(tasks){ task in
+        ForEach(tasks){ task in
+            HStack(alignment: editButton?.wrappedValue == .active ? .center : .top, spacing: 10){
+                if editButton?.wrappedValue == .active{
+                    VStack(spacing: 10){
+                        //MARK: - Archive Button
+                        Button {
+                            task.isArchived.toggle()
+                            try? viewContext.save()
+                        } label: {
+                            Image(systemName: "doc.fill.badge.plus")
+                                .font(.title3)
+                                .foregroundColor(.primary)
+                        }
+                        //MARK: - Delete Button
+                        Button {
+                            viewContext.delete(task)
+                            try? viewContext.save()
+                        } label: {
+                            Image(systemName: "minus.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(.red)
+                        }
+                    }
+                    TaskCardView(task: task)
+                    
+                }else{
                     TaskCardView(task: task)
                 }
-//            }
-//        }
+            }
+        }
     }
 }
 
@@ -278,17 +275,20 @@ struct TopSectionView: View {
 
 struct TaskCardView: View {
     var task: Task
+    @Environment(\.managedObjectContext) private var viewContext
+    
     var body: some View {
         VStack(){
             HStack(alignment: .top) {
                 Text(task.taskTitle ?? "")
                     .font(.title2)
                     .padding(.bottom,2)
-
+                
                 Spacer()
                 //MARK: - check buttom
                 Button {
                     task.isCompleted.toggle()
+                    try? viewContext.save()
                 } label: {
                     Image(systemName:task.isCompleted ? "checkmark.seal.fill" : "checkmark.circle")
                         .imageScale(.large)
@@ -297,7 +297,7 @@ struct TaskCardView: View {
                 }
             }
             
-            VStack {
+            VStack(alignment: .leading) {
                 Text(task.taskDescription ?? "")
                     .font(.footnote)
                     .fontWeight(.light)
@@ -307,6 +307,7 @@ struct TaskCardView: View {
                     .font(.caption)
                     .padding(.vertical, 2)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                
             }
         }
         .padding()
