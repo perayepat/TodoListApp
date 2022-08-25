@@ -1,9 +1,9 @@
-    //
-    //  ContentView.swift
-    //  TodoList
-    //
-    //  Created by Pat on 2022/08/22.
-    //
+//
+//  ContentView.swift
+//  TodoList
+//
+//  Created by Pat on 2022/08/22.
+//
 
 import SwiftUI
 import CoreData
@@ -11,7 +11,11 @@ import CoreData
 struct ContentView: View {
     @EnvironmentObject var taskModel: TaskViewModel
     
+    let persistenceController = PersistenceController.shared
     @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(sortDescriptors: []) var tasks: FetchedResults<Task>
+    
+    @AppStorage("selectedTab") var selectedTab:Tab = .home
     @Environment(\.editMode) var editButton
     /// controls the bottom states anchor positions
     @State var bottomState = CGSize.zero
@@ -32,28 +36,42 @@ struct ContentView: View {
                 .offset(y:350)
                 .blur(radius: 10)
                 .opacity(0.8)
-                //MARK: - Header Section
+            //MARK: - Header Section
             TopSectionView()
-                //MARK: - Body Section
-            ScrollView{
-                    //TODO: - Add Fade when scrolling up
-               TodayRowCardView
-                    .onLongPressGesture(minimumDuration: 1) {
-                        showCard.toggle()  
+            //MARK: - Body Section
+            ScrollView(.vertical){
+                switch selectedTab {
+                case .home:
+//                    TodayRowCardView
+//                        .onLongPressGesture(minimumDuration: 1) {
+//                            showCard.toggle()
+//                        }
+                    ForEach(tasks){ task in
+                        TaskCardView(task: task)
                     }
+                case .archived:
+                    Text("Archived")
+                case .done:
+                    Text("Done")
+                }
+                
             }
-            .offset(y:-100)
-            .frame(height: 450)
+            .offset(y:10)
+            .frame(height: 550)
             .padding()
-            .rotationEffect(.degrees(180))
+            
             
             Color.black
                 .ignoresSafeArea()
                 .opacity(showCard||isAddingItem ? 0.7: 0)
-                
-                //MARK: - New Item View
+            
+            Color.black
+                .ignoresSafeArea()
+                .opacity(isAddingItem ? 0.7: 0)
+            
+            //MARK: - New Item View
             NewItemPopUp
-                //MARK: - Footer Section
+            //MARK: - Footer Section
             EditView(show: $showCard)
                 .offset(x: 0, y:showCard ? 360 : 1000)
                 .offset(y: bottomState.height)
@@ -67,8 +85,8 @@ struct ContentView: View {
                         /// store bottom card position
                         self.bottomState = value.translation
                         if self.showFull{
-                        self.bottomState .height += -300
-            
+                            self.bottomState .height += -300
+                            
                             ///maximum drag so you dont see the bottom of the card
                             if self.bottomState.height < -300
                             {
@@ -78,7 +96,7 @@ struct ContentView: View {
                     }
                     ///Reset position on drag
                         .onEnded{ value in
-            
+                            
                             ///dismiss the view with a slide
                             if self.bottomState.height > 50 {
                                 self.showCard = false
@@ -94,13 +112,12 @@ struct ContentView: View {
                             }
                         }
                 )
-     
+            
             AddingNewItemButton
                 .offset(x: showCard ? 300:0)
                 .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showCard)
-            
         }
-
+        
     }
     func showEditView(){
         showCard.toggle()
@@ -119,7 +136,7 @@ struct ContentView: View {
                 .frame(width: 40, height: 40)
         }
         .frame(maxWidth: .infinity,maxHeight: .infinity, alignment: .bottomTrailing)
-        .padding(.horizontal,21)
+        .padding(.horizontal,20)
     }
     
     var NewItemPopUp : some View{
@@ -136,17 +153,29 @@ struct ContentView: View {
                 .padding()
                 .toolbar {
                     ToolbarItemGroup(placement: .keyboard) {
-                        if !isAddingItem{
                         HStack{
                             Spacer()
-                            Image(systemName: "arrow.up.circle.fill")
-                                .imageScale(.large)
-                                .foregroundColor(.black)
+                            Button{
+                                
+                                let newTask  = Task(context: viewContext)
+                                newTask.taskTitle = taskTitle
+                                newTask.taskDescription = taskDescription
+                                newTask.taskDate = Date()
+                                
+                                taskTitle = ""
+                                taskDescription = ""
+                                
+                                try? viewContext.save()
+                                
+                            }label: {
+                                Image(systemName: "arrow.up.circle.fill")
+                                    .imageScale(.large)
+                                    .foregroundColor(.black)
+                            }
                         }
                         .padding(10)
                     }
                 }
-            }
         }
         .background(.thinMaterial)
         .cornerRadius(30,corners: [.topLeft,.topRight])
@@ -157,99 +186,43 @@ struct ContentView: View {
     }
     
     var TodayRowCardView: some View {
-        HStack(alignment: editButton?.wrappedValue == .active ? .center : .top, spacing: 10){
-            
-            if editButton?.wrappedValue == .active{
-                VStack(){
-                    HStack(alignment: .top) {
-                        Text("Title")
-                            .font(.title)
-                            .padding(.bottom,10)
-                        
-                        Spacer()
-                            //MARK: - check buttom
-                        Button {} label: {
-                            Image(systemName: "checkmark.circle")
-                                .imageScale(.large)
-                                .font(.caption)
-                                .foregroundStyle(.black.opacity(0.8))
-                        }
-                    }
-                    
-                    VStack {
-                        Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit, do eiusmod tempor incididunt ut labore et dolore aliqua.v")
-                            .font(.footnote)
-                            .fontWeight(.light)
-                            .lineLimit(2)
-                        
-                        Text("Time")
-                            .font(.caption)
-                            .padding(.vertical, 2)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+//        HStack(alignment: editButton?.wrappedValue == .active ? .center : .top, spacing: 10){
+//
+//            if editButton?.wrappedValue == .active{
+//
+//                VStack(spacing: 10){
+//                    //MARK: - Archive Button
+//                    Button {
+//                        //deleting task
+//                        //Saving delete
+//                    } label: {
+//                        Image(systemName: "doc.fill.badge.plus")
+//                            .font(.title3)
+//                            .foregroundColor(.primary)
+//                    }
+//                    //MARK: - Delete Button
+//                    Button {
+//                        //deleting task
+//                        //Saving delete
+//
+//
+//                    } label: {
+//                        Image(systemName: "minus.circle.fill")
+//                            .font(.title2)
+//                            .foregroundColor(.red)
+//                    }
+//
+//                }
+//
+//                ForEach(tasks){ task in
+//                    TaskCardView(task: task)
+//                }
+//            }else{
+                ForEach(tasks){ task in
+                    TaskCardView(task: task)
                 }
-                .padding()
-                .rotationEffect(.degrees(180))
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
-                VStack(spacing: 10){
-                        //MARK: - Archive Button
-                    Button {
-                            //deleting task
-                            //Saving delete
-                    } label: {
-                        Image(systemName: "doc.fill.badge.plus")
-                            .font(.title3)
-                            .foregroundColor(.primary)
-                    }
-                        //MARK: - Delete Button
-                    Button {
-                            //deleting task
-                            //Saving delete
-                        
-                        
-                    } label: {
-                        Image(systemName: "minus.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.red)
-                    }
-
-                }
-            }else{
-                VStack(){
-                    HStack(alignment: .top) {
-                        Text("Title")
-                            .font(.title)
-                            .padding(.bottom,10)
-                        
-                        Spacer()
-                            //MARK: - check buttom
-                        Button {
-                            
-                        } label: {
-                            Image(systemName: "checkmark.circle")
-                                .imageScale(.large)
-                                .font(.caption)
-                                .foregroundStyle(.black.opacity(0.8))
-                        }
-                    }
-                    VStack {
-                        Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit, do eiusmod tempor incididunt ut labore et dolore aliqua.v")
-                            .font(.footnote)
-                            .fontWeight(.light)
-                            .lineLimit(2)
-                        
-                        Text("Time")
-                            .font(.caption)
-                            .padding(.vertical, 2)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                }
-                .padding()
-                .rotationEffect(.degrees(180))
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
-                    //                        .frame(height: 150)
-            }
-        }
+//            }
+//        }
     }
 }
 
@@ -272,31 +245,27 @@ enum FocusableFeild: Hashable{
 struct TopSectionView: View {
     var body: some View {
         HStack{
-            VStack(alignment: .leading, spacing: 10){
-                Text(Date().addingTimeInterval(600), style: .date)
-                    .font(.title2.weight(.light))
+            VStack(alignment: .leading){
+                TabBarView()
                 Spacer()
-                
             }
-            .padding()
+            .padding(.top,1)
             .frame(alignment: .leading)
-            
             Spacer()
             VStack(alignment: .trailing, spacing: 5){
-                
-                    //MARK: - Edit Button
+                //MARK: - Edit Button
                 EditButton()
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                 
-//                Rectangle()
-//                    .frame(width: 1, height: 60)
-//                Text("Week")
-//                Rectangle()
-//                    .frame(width: 1, height: 10)
-//                Text("Month")
-//             Rectangle()
-//                    .frame(width: 1, height: 10)
-//                Text("Year")
+                //                Rectangle()
+                //                    .frame(width: 1, height: 60)
+                //                Text("Week")
+                //                Rectangle()
+                //                    .frame(width: 1, height: 10)
+                //                Text("Month")
+                //             Rectangle()
+                //                    .frame(width: 1, height: 10)
+                //                Text("Year")
                 Spacer()
             }
             .padding()
@@ -306,3 +275,41 @@ struct TopSectionView: View {
 }
 
 
+
+struct TaskCardView: View {
+    var task: Task
+    var body: some View {
+        VStack(){
+            HStack(alignment: .top) {
+                Text(task.taskTitle ?? "")
+                    .font(.title2)
+                    .padding(.bottom,2)
+
+                Spacer()
+                //MARK: - check buttom
+                Button {
+                    task.isCompleted.toggle()
+                } label: {
+                    Image(systemName:task.isCompleted ? "checkmark.seal.fill" : "checkmark.circle")
+                        .imageScale(.large)
+                        .font(.caption)
+                        .foregroundStyle(.black.opacity(0.8))
+                }
+            }
+            
+            VStack {
+                Text(task.taskDescription ?? "")
+                    .font(.footnote)
+                    .fontWeight(.light)
+                    .lineLimit(2)
+                
+                Text(task.taskDate?.formatted(.dateTime.weekday(.wide)) ?? Date().formatted(.dateTime.weekday(.wide)))
+                    .font(.caption)
+                    .padding(.vertical, 2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+    }
+}

@@ -18,24 +18,32 @@ struct TabBarView: View {
                         selectedTab = item.tab
                     }
                 }label: {
-                    VStack(spacing:1){
                         Image(systemName: item.icon)
                             .symbolVariant(.fill)
                             .font(.body.bold())
-                            .frame(width: 30, height: 29)
+                            .frame(width: 30, height: 30)
                         Text(item.text)
                             .font(.caption2)
-                    }
-                    .padding(.leading,20)
-                    .frame(width: 130,alignment: selectedTab == item.tab ? .leading : .center)
                 }
-                .foregroundStyle(selectedTab == item.tab ? Color.primary: .secondary)
+                .padding(.horizontal,10)
+                .foregroundStyle(selectedTab == item.tab ? Color.white: .secondary)
+                .background(
+                    ZStack{
+                        if selectedTab == item.tab{
+                            Capsule()
+                                .fill(.black)
+                                .matchedGeometryEffect(id: "TAB", in: animation)
+                        }
+                    }
+                )
             }
-            Spacer()
-                .frame(width: 70)
         }
+        
+        .background(
+            Capsule()
+                .stroke(lineWidth: 0.3)
+        )
         .padding()
-        .frame(maxHeight: .infinity, alignment: .bottom)
         .ignoresSafeArea()
     }
 }

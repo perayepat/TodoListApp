@@ -27,6 +27,16 @@ struct EditView: View {
                     .foregroundStyle(.black.opacity(0.6))
                 Spacer()
                 Button{
+                    //MARK: - Save Changes
+                    
+                }label: {
+                    Text("Save")
+                        .font(.caption.bold())
+                        .padding(10)
+                        .background(.black.opacity(0.2) , in: RoundedRectangle(cornerRadius: 25, style: .continuous))
+                        .foregroundColor(.black.opacity(0.5))
+                }
+                Button{
                     show.toggle()
                 }label: {
                     Image(systemName: "xmark")
