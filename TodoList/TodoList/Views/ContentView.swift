@@ -18,6 +18,10 @@ struct ContentView: View {
     @AppStorage("selectedTab") var selectedTab:Tab = .home
     @Environment(\.editMode) var editButton
     /// controls the bottom states anchor positions
+    @State var transitState = CGPoint(x:350, y: 0)
+    @GestureState var locatioinState = CGPoint(x:350, y: 750)
+    @State var dragIsActive = false
+    @State var dragTransition = false
     @State var bottomState = CGSize.zero
     @State var showCard = false
     @State var showFull = false
@@ -61,13 +65,13 @@ struct ContentView: View {
                 }
             }
             .offset(y:10)
-            .frame(height: 550)
+            .frame(height: 650)
             .padding()
             
             
             Color.black
                 .ignoresSafeArea()
-                .opacity(showCard||isAddingItem ? 0.7: 0)
+                .opacity(showCard ? 0.7: 0)
             
             Color.black
                 .ignoresSafeArea()
@@ -116,31 +120,65 @@ struct ContentView: View {
                             }
                         }
                 )
+            Color.black
+                .ignoresSafeArea()
+                .opacity(dragIsActive ? 0.8: 0)
             
+            if dragIsActive{
+                Circle()
+                    .foregroundColor(.white)
+                    .frame(width: dragTransition ? 480: 40, height: dragTransition ?  280: 40)
+                    .offset(x: -150, y: 370)
+                    
+            }
             AddingNewItemButton
                 .offset(x: showCard ? 300:0)
                 .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showCard)
         }
-        
-    }
-    func showEditView(){
-        showCard.toggle()
+        .animation(.easeInOut,value: dragIsActive)
     }
     
     var AddingNewItemButton: some View{
         ZStack {
+            Circle()
+                .frame(width: 40, height: 40)
+                .background(.black.opacity(0.9), in: Circle())
             Image(systemName: "plus")
                 .font(.title)
                 .onTapGesture {
                     isAddingItem.toggle()
                     showKeyboardView.toggle()
                 }
-            Circle()
-                .stroke(lineWidth: 1)
-                .frame(width: 40, height: 40)
+                .foregroundStyle(.white)
+            if dragIsActive{
+                BlobView(width: 50, height: 50)
+                    .shadow(color: .white.opacity(0.9), radius: 5, x: 2, y: 2)
+            }
+            
         }
-        .frame(maxWidth: .infinity,maxHeight: .infinity, alignment: .bottomTrailing)
+        .frame(width: 5, height: 5)
         .padding(.horizontal,20)
+        //MARK: Gestures
+        .position(locatioinState)
+        .gesture(
+            DragGesture()
+                .onChanged{ v in
+                    dragIsActive = true
+                    if v.location.x < 80{
+                        dragTransition.toggle()
+                    }
+                }
+                .updating($locatioinState){currentState, pastLocation, transaction in
+                    pastLocation = currentState.location
+                    transaction.animation = .easeInOut
+                }
+                .onEnded({ v in
+                    dragIsActive = false
+                    dragTransition = false
+                })
+        )
+        .animation(.spring(response: 0.3, dampingFraction: 0.7),value: dragIsActive)
+        
     }
     
     var NewItemPopUp : some View{
@@ -160,7 +198,9 @@ struct ContentView: View {
                         HStack{
                             Spacer()
                             Button{
-                                
+                                if taskTitle == "title"{
+                                    
+                                }else{
                                 let newTask  = Task(context: viewContext)
                                 newTask.taskTitle = taskTitle
                                 newTask.taskDescription = taskDescription
@@ -170,6 +210,8 @@ struct ContentView: View {
                                 taskDescription = ""
                                 
                                 try? viewContext.save()
+                                    showKeyboardView.toggle()
+                                }
                                 
                             }label: {
                                 Image(systemName: "arrow.up.circle.fill")
@@ -252,17 +294,7 @@ struct TopSectionView: View {
             VStack(alignment: .trailing, spacing: 5){
                 //MARK: - Edit Button
                 EditButton()
-                    .foregroundColor(.primary)
-                
-                //                Rectangle()
-                //                    .frame(width: 1, height: 60)
-                //                Text("Week")
-                //                Rectangle()
-                //                    .frame(width: 1, height: 10)
-                //                Text("Month")
-                //             Rectangle()
-                //                    .frame(width: 1, height: 10)
-                //                Text("Year")
+                    .foregroundColor(.primary.opacity(0.8))
                 Spacer()
             }
             .padding()
@@ -270,9 +302,6 @@ struct TopSectionView: View {
         }
     }
 }
-
-
-
 struct TaskCardView: View {
     var task: Task
     @Environment(\.managedObjectContext) private var viewContext
@@ -281,13 +310,14 @@ struct TaskCardView: View {
         VStack(){
             HStack(alignment: .top) {
                 Text(task.taskTitle ?? "")
-                    .font(.title2)
+                    .font(.title3)
                     .padding(.bottom,2)
                 
                 Spacer()
                 //MARK: - check buttom
                 Button {
                     task.isCompleted.toggle()
+                    task.taskDate = Date()
                     try? viewContext.save()
                 } label: {
                     Image(systemName:task.isCompleted ? "checkmark.seal.fill" : "checkmark.circle")
@@ -302,12 +332,17 @@ struct TaskCardView: View {
                     .font(.footnote)
                     .fontWeight(.light)
                     .lineLimit(2)
-                
-                Text(task.taskDate?.formatted(.dateTime.weekday(.wide)) ?? Date().formatted(.dateTime.weekday(.wide)))
+                if task.isCompleted{
+                    Text("Completed on: \(task.taskDate!.formatted(.dateTime.day().month()))")
+                        .font(.caption)
+                        .padding(.vertical, 2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }else{
+                Text(task.taskDate?.formatted() ?? Date().formatted(.dateTime.weekday(.wide)))
                     .font(.caption)
                     .padding(.vertical, 2)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
+                }
             }
         }
         .padding()

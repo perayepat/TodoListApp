@@ -21,7 +21,8 @@ struct TabBarView: View {
                         Image(systemName: item.icon)
                             .symbolVariant(.fill)
                             .font(.body.bold())
-                            .frame(width: 30, height: 30)
+                            .frame(width: 25, height: 25)
+                            .imageScale(.small)
                         Text(item.text)
                             .font(.caption2)
                 }

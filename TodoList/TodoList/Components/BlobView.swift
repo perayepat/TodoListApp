@@ -9,7 +9,8 @@ import SwiftUI
 
 struct BlobView: View {
     @State var appear = false
-    
+    var width:CGFloat = 400
+    var height:CGFloat = 514
     
     var body: some View {
         TimelineView(.animation){ timeline in
@@ -25,7 +26,7 @@ struct BlobView: View {
                         .linearGradient(Gradient(colors: [Color(hex: "ffd6a5"),Color(hex: "ffc6ff")]), startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 300, y: 100))
                 )
             }
-            .frame(width: 400, height: 514)
+            .frame(width: width, height: height)
             .rotationEffect(.degrees(appear ? 360 : 0))
         
             .onAppear{
