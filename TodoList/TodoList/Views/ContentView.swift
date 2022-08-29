@@ -16,6 +16,7 @@ struct ContentView: View {
     @FetchRequest(sortDescriptors: []) var tasks: FetchedResults<Task>
     
     @AppStorage("selectedTab") var selectedTab:Tab = .home
+    @Environment(\.dismiss) var dismissal
     @Environment(\.editMode) var editButton
     /// controls the bottom states anchor positions
     @State var transitState = CGPoint(x:350, y: 0)
@@ -28,6 +29,7 @@ struct ContentView: View {
     
     @FocusState var showKeyboardView : Bool
     @FocusState var isAddingItem : Bool
+    @State var isDeleting = false
     @State var taskTitle: String = ""
     @State var taskDescription: String = ""
     @State var taskDate: String = ""
@@ -247,13 +249,24 @@ struct ContentView: View {
                         }
                         //MARK: - Delete Button
                         Button {
-                            viewContext.delete(task)
-                            try? viewContext.save()
+                            isDeleting.toggle()
+
                         } label: {
                             Image(systemName: "minus.circle.fill")
                                 .font(.title2)
                                 .foregroundColor(.red)
                         }
+                    }
+                    .alert(isPresented: $isDeleting) {
+                        Alert(title: Text("Are you sure ?"),
+                              message: Text("You are about to delete a task"),
+                              primaryButton: .destructive(Text("Delete"), action: {
+                            viewContext.delete(task)
+                            try? viewContext.save()
+                        }),
+                              secondaryButton: .default(Text("Cancel"), action: {
+                            dismissal()
+                        }))
                     }
                     TaskCardView(task: task)
                     
@@ -323,7 +336,7 @@ struct TaskCardView: View {
                     Image(systemName:task.isCompleted ? "checkmark.seal.fill" : "checkmark.circle")
                         .imageScale(.large)
                         .font(.caption)
-                        .foregroundStyle(.black.opacity(0.8))
+                        .foregroundStyle(.gray)
                 }
             }
             

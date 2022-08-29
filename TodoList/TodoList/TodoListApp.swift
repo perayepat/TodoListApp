@@ -10,11 +10,16 @@ import SwiftUI
 @main
 struct TodoListApp: App {
     let persistenceController = PersistenceController.shared
+    @State var isActive: Bool = false
 
     var body: some Scene {
         WindowGroup {
+            if isActive {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            } else{
+                SplashScreenView(isActive: $isActive)
+            }
         }
     }
 }
