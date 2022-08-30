@@ -27,9 +27,11 @@ struct ContentView: View {
     @State var showCard = false
     @State var showFull = false
     
+    
     @FocusState var showKeyboardView : Bool
     @FocusState var isAddingItem : Bool
     @State var isDeleting = false
+    @State var isArchived = false
     @State var taskTitle: String = ""
     @State var taskDescription: String = ""
     @State var taskDate: String = ""
@@ -38,6 +40,7 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
+            Group{
             BlobView()
                 .offset(y:350)
                 .blur(radius: 10)
@@ -72,6 +75,7 @@ struct ContentView: View {
             .padding()
             
             
+            
             Color.black
                 .ignoresSafeArea()
                 .opacity(showCard ? 0.7: 0)
@@ -79,9 +83,11 @@ struct ContentView: View {
             Color.black
                 .ignoresSafeArea()
                 .opacity(isAddingItem ? 0.7: 0)
-            
+            }
             //MARK: - New Item View
             NewItemPopUp
+            
+            Group{
             //MARK: - Footer Section
             EditView(editedTask:tasksModel ,show: $showCard)
                 .environmentObject(tasksModel)
@@ -128,6 +134,7 @@ struct ContentView: View {
                 .ignoresSafeArea()
                 .opacity(dragIsActive ? 0.8: 0)
             
+           
             if dragIsActive{
                 Circle()
                     .foregroundColor(.white)
@@ -135,11 +142,21 @@ struct ContentView: View {
                     .offset(x: -150, y: 370)
                     
             }
+            
             AddingNewItemButton
                 .offset(x: showCard ? 300:0)
                 .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showCard)
+            }
+            ItemEditPopUp(messageToShow: "Archvied")
+                .offset(y: isArchived ? 370 : 1000)
+                .animation(.spring(response: 0.6, dampingFraction: 0.6), value: isArchived)
         }
         .animation(.easeInOut,value: dragIsActive)
+        .onChange(of: isArchived) { V in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2){
+                    isArchived = false
+            }
+        }
     }
     
     var AddingNewItemButton: some View{
@@ -147,14 +164,14 @@ struct ContentView: View {
             Circle()
                 .frame(width: 40, height: 40)
                 .background(.black.opacity(0.9), in: Circle())
-                .foregroundColor(Color.secondary)
+                .foregroundStyle(.ultraThinMaterial)
             Image(systemName: "plus")
                 .font(.title)
                 .onTapGesture {
                     isAddingItem.toggle()
                     showKeyboardView.toggle()
                 }
-                .foregroundColor(.primary)
+                .foregroundColor(.white)
             if dragIsActive{
                 BlobView(width: 50, height: 50)
                     .shadow(color: .white.opacity(0.9), radius: 5, x: 2, y: 2)
@@ -263,7 +280,7 @@ struct ContentView: View {
     
     var TodayRowCardView: some View {
         ForEach(tasks){ task in
-//            if(task.isArchived == false && task.isCompleted == false){
+            if(task.isArchived == false && task.isCompleted == false){
             HStack(alignment: editButton?.wrappedValue == .active ? .center : .top, spacing: 10){
                 if editButton?.wrappedValue == .active{
                     VStack(spacing: 10){
@@ -271,6 +288,8 @@ struct ContentView: View {
                         Button {
                             task.isArchived.toggle()
                             try? viewContext.save()
+                            editButton?.wrappedValue = .inactive
+                            isArchived = true
                         } label: {
                             Image(systemName: "doc.fill.badge.plus")
                                 .font(.title3)
@@ -279,7 +298,6 @@ struct ContentView: View {
                         //MARK: - Delete Button
                         Button {
                             isDeleting.toggle()
-
                         } label: {
                             Image(systemName: "minus.circle.fill")
                                 .font(.title2)
@@ -311,7 +329,8 @@ struct ContentView: View {
                         }
                 }
             }
-//            }
+                
+            }
         }
     }
 }

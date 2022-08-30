@@ -13,6 +13,7 @@ struct EditView: View {
     var editedTask: TaskViewModel
     @Binding var show: Bool
     @State var taskTitle: String = ""
+    @State var itemChecked: Bool = false
     @State var taskDate: String = ""
     @State var taskDescription: String = ""
     @Environment(\.dismiss) var dismiss
@@ -37,9 +38,6 @@ struct EditView: View {
                     }else{
                     editedTask.editTask?.taskTitle = taskTitle
                     editedTask.editTask?.taskDescription = taskDescription
-//                    taskTitle = ""
-//                    taskDescription = ""
-                    
                     try? viewContext.save()
                         
                     }
@@ -65,10 +63,11 @@ struct EditView: View {
             HStack{
                 Button{
                     //MARK: - mark as done
+                    itemChecked.toggle()
                     editedTask.editTask?.isCompleted.toggle()
-                    
+                    try? viewContext.save()
                 }label: {
-                    Image(systemName: editedTask.editTask?.isCompleted ?? false ? "circle.fill" : "circle")
+                    Image(systemName: itemChecked ? "circle.fill" : "circle")
                         .font(.title2.weight(.light))
                         .foregroundColor(.black)
                 }
@@ -76,6 +75,9 @@ struct EditView: View {
                 Spacer()
             }
             .padding()
+//            .onChange(of: editedTask.editTask?.isCompleted) { newValue in
+//                
+//            }
             
             HStack{
                 Image(systemName: "calendar")
@@ -118,6 +120,7 @@ struct EditView: View {
                 taskTitle =  task.taskTitle ?? ""
                 taskDescription =  task.taskDescription ?? ""
                 taskDate = task.taskDate?.formatted() ?? ""
+                itemChecked = task.isCompleted
             }
         }
         

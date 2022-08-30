@@ -10,6 +10,7 @@
 		432E05A128BB993B004DEE18 /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 432E05A028BB993B004DEE18 /* SplashScreenView.swift */; };
 		432E05A328BCA58D004DEE18 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 432E05A228BCA58D004DEE18 /* HomeView.swift */; };
 		432E05A528BCAE8E004DEE18 /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 432E05A428BCAE8E004DEE18 /* TaskViewModel.swift */; };
+		432E05A728BE6BA1004DEE18 /* ItemEditPopUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 432E05A628BE6BA1004DEE18 /* ItemEditPopUp.swift */; };
 		4361721C28B3E44F0034527C /* TodoListApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4361721B28B3E44F0034527C /* TodoListApp.swift */; };
 		4361721E28B3E44F0034527C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4361721D28B3E44F0034527C /* ContentView.swift */; };
 		4361722028B3E4500034527C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4361721F28B3E4500034527C /* Assets.xcassets */; };
@@ -31,6 +32,7 @@
 		432E05A028BB993B004DEE18 /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
 		432E05A228BCA58D004DEE18 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		432E05A428BCAE8E004DEE18 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
+		432E05A628BE6BA1004DEE18 /* ItemEditPopUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEditPopUp.swift; sourceTree = "<group>"; };
 		4361721828B3E44F0034527C /* TodoList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4361721B28B3E44F0034527C /* TodoListApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListApp.swift; sourceTree = "<group>"; };
 		4361721D28B3E44F0034527C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 				6AB7CBEE28B61755008872C7 /* TabBarView.swift */,
 				4364C75528BB8AF7005266A1 /* SplashScreenIconView.swift */,
 				432E05A028BB993B004DEE18 /* SplashScreenView.swift */,
+				432E05A628BE6BA1004DEE18 /* ItemEditPopUp.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -219,6 +222,7 @@
 				6AA55EFB28B53CEE003E30D2 /* EditView.swift in Sources */,
 				4361723228B3FBF10034527C /* Extensions.swift in Sources */,
 				6AB7CBEA28B60BFD008872C7 /* DashboardView.swift in Sources */,
+				432E05A728BE6BA1004DEE18 /* ItemEditPopUp.swift in Sources */,
 				432E05A128BB993B004DEE18 /* SplashScreenView.swift in Sources */,
 				4361722528B3E4500034527C /* Persistence.swift in Sources */,
 				4364C75828BB90AF005266A1 /* GifImage.swift in Sources */,
