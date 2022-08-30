@@ -14,12 +14,14 @@ struct TodoListApp: App {
 
     var body: some Scene {
         WindowGroup {
+            
             if isActive {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
             } else{
                 SplashScreenView(isActive: $isActive)
             }
+            
         }
     }
 }

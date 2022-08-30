@@ -9,11 +9,11 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    @EnvironmentObject var taskModel: TaskViewModel
-    
     let persistenceController = PersistenceController.shared
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(sortDescriptors: []) var tasks: FetchedResults<Task>
+    
+    @StateObject var tasksModel = TaskViewModel()
     
     @AppStorage("selectedTab") var selectedTab:Tab = .home
     @Environment(\.dismiss) var dismissal
@@ -55,6 +55,7 @@ struct ContentView: View {
                             TaskCardView(task: task)
                                 .onTapGesture(count: 2) {
                                     showCard.toggle()
+                                    tasksModel.editTask = task
                                 }
                         }
                     }
@@ -82,7 +83,8 @@ struct ContentView: View {
             //MARK: - New Item View
             NewItemPopUp
             //MARK: - Footer Section
-            EditView(show: $showCard)
+            EditView(editedTask:tasksModel ,show: $showCard)
+                .environmentObject(tasksModel)
                 .offset(x: 0, y:showCard ? 360 : 1000)
                 .offset(y: bottomState.height)
             //MARK: Animation
@@ -195,35 +197,60 @@ struct ContentView: View {
                 .focused($showKeyboardView)
                 .font(.caption)
                 .padding()
-                .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        HStack{
-                            Spacer()
-                            Button{
-                                if taskTitle == "title"{
-                                    
-                                }else{
-                                let newTask  = Task(context: viewContext)
-                                newTask.taskTitle = taskTitle
-                                newTask.taskDescription = taskDescription
-                                newTask.taskDate = Date()
-                                
-                                taskTitle = ""
-                                taskDescription = ""
-                                
-                                try? viewContext.save()
-                                    showKeyboardView.toggle()
-                                }
-                                
-                            }label: {
-                                Image(systemName: "arrow.up.circle.fill")
-                                    .imageScale(.large)
-                                    .foregroundColor(.black)
-                            }
-                        }
-                        .padding(10)
-                    }
+//                .toolbar {
+//                    ToolbarItemGroup(placement: .keyboard) {
+//                        HStack{
+//                            Spacer()
+//                            Button{
+////                                if taskTitle == "title"{
+////
+////                                }else{
+//                                let newTask  = Task(context: viewContext)
+//                                newTask.taskTitle = taskTitle
+//                                newTask.taskDescription = taskDescription
+//                                newTask.taskDate = Date()
+//
+//                                taskTitle = ""
+//                                taskDescription = ""
+//
+//                                try? viewContext.save()
+//                                    showKeyboardView.toggle()
+////                                }
+//
+//                            }label: {
+//                                Image(systemName: "arrow.up.circle.fill")
+//                                    .imageScale(.large)
+//                                    .foregroundColor(.black)
+//                            }
+//                        }
+//                        .padding(10)
+//                    }
+//                }
+            HStack{
+                Spacer()
+                Button{
+//                                if taskTitle == "title"{
+//
+//                                }else{
+                    let newTask  = Task(context: viewContext)
+                    newTask.taskTitle = taskTitle
+                    newTask.taskDescription = taskDescription
+                    newTask.taskDate = Date()
+                    
+                    taskTitle = ""
+                    taskDescription = ""
+                    
+                    try? viewContext.save()
+                        showKeyboardView.toggle()
+//                                }
+                    
+                }label: {
+                    Image(systemName: "arrow.up.circle.fill")
+                        .imageScale(.large)
+                        .foregroundColor(.black)
                 }
+            }
+            .padding(15)
         }
         .background(.thinMaterial)
         .cornerRadius(30,corners: [.topLeft,.topRight])
@@ -235,6 +262,7 @@ struct ContentView: View {
     
     var TodayRowCardView: some View {
         ForEach(tasks){ task in
+            if(task.isArchived == false && task.isCompleted == false){
             HStack(alignment: editButton?.wrappedValue == .active ? .center : .top, spacing: 10){
                 if editButton?.wrappedValue == .active{
                     VStack(spacing: 10){
@@ -269,10 +297,19 @@ struct ContentView: View {
                         }))
                     }
                     TaskCardView(task: task)
+                        .onTapGesture(count: 2) {
+                            showCard.toggle()
+                            tasksModel.editTask = task
+                        }
                     
                 }else{
                     TaskCardView(task: task)
+                        .onTapGesture(count: 2) {
+                            showCard.toggle()
+                            tasksModel.editTask = task
+                        }
                 }
+            }
             }
         }
     }
@@ -282,16 +319,12 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(tasksModel: TaskViewModel())
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
             .environmentObject(TaskViewModel())
     }
 }
 
-enum FocusableFeild: Hashable{
-    case title
-    case description
-}
 
 
 struct TopSectionView: View {

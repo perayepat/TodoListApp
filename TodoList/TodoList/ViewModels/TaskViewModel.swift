@@ -2,12 +2,13 @@
 //  TaskViewModel.swift
 //  TodoList
 //
-//  Created by IACD-013 on 2022/08/23.
+//  Created by Pat on 2022/08/29.
 //
 
 import SwiftUI
 
+
 class TaskViewModel: ObservableObject{
-        // MARK: Edit Data
-        @Published var editTask: Task?
+
+    @Published var editTask: Task?
 }

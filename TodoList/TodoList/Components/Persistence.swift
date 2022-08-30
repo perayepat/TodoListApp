@@ -10,6 +10,23 @@ import CoreData
 struct PersistenceController {
     static let shared = PersistenceController()
     
+    static var singlePreview: PersistenceController = {
+        let result = PersistenceController(inMemory: true)
+        let viewContext = result.container.viewContext
+            let newItem = Task(context: viewContext)
+            newItem.taskTitle = "New Item"
+            newItem.taskDescription = "New Description"
+            newItem.taskDate = Date()
+        do {
+            try viewContext.save()
+        } catch {
+            // Replace this implementation with code to handle the error appropriately.
+            // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+        }
+        return result
+    }()
 
     static var preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)

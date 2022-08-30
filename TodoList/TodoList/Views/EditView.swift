@@ -9,10 +9,14 @@ import SwiftUI
 
 struct EditView: View {
 //    var focusField: FocusState<UUID?>.Binding
+    
+    var editedTask: TaskViewModel
     @Binding var show: Bool
-    @State var taskTItle: String = ""
+    @State var taskTitle: String = ""
+    @State var taskDate: String = ""
     @State var taskDescription: String = ""
     @Environment(\.dismiss) var dismiss
+    @Environment(\.managedObjectContext) private var viewContext
     
     var body: some View {
         VStack {
@@ -28,7 +32,18 @@ struct EditView: View {
                 Spacer()
                 Button{
                     //MARK: - Save Changes
+                    if taskTitle == "title"{
+                        
+                    }else{
+                    editedTask.editTask?.taskTitle = taskTitle
+                    editedTask.editTask?.taskDescription = taskDescription
+                    taskTitle = ""
+                    taskDescription = ""
                     
+                    try? viewContext.save()
+                        
+                    }
+                    dismiss()
                 }label: {
                     Text("Save")
                         .font(.caption.bold())
@@ -38,6 +53,7 @@ struct EditView: View {
                 }
                 Button{
                     show.toggle()
+                    dismiss()
                 }label: {
                     Image(systemName: "xmark")
                         .font(.caption.bold())
@@ -50,12 +66,14 @@ struct EditView: View {
             HStack{
                 Button{
                     //MARK: - mark as done
+                    editedTask.editTask?.isCompleted.toggle()
+                    
                 }label: {
-                    Image(systemName: "circle")
+                    Image(systemName: editedTask.editTask?.isCompleted ?? false ? "circle.fill" : "circle")
                         .font(.title2.weight(.light))
                         .foregroundColor(.black)
                 }
-                TextField("Title", text: $taskTItle)
+                TextField("Title", text: $taskTitle)
                 Spacer()
             }
             .padding()
@@ -64,7 +82,7 @@ struct EditView: View {
                 Image(systemName: "calendar")
                     .font(.title2.bold())
                     .foregroundStyle(.black.opacity(0.3))
-                Text("Task Date")
+                Text(taskDate)
                     .font(.caption)
                     .foregroundStyle(.black.opacity(0.3))
                 Spacer()
@@ -89,13 +107,22 @@ struct EditView: View {
         .background(.white)
         .cornerRadius(30,corners: [.topLeft,.topRight])
         .shadow(radius: 20)
+        .onAppear{
+            if let task = editedTask.editTask {
+                taskTitle =  task.taskTitle ?? ""
+                taskDescription =  task.taskDescription ?? ""
+                taskDate = task.taskDate?.formatted() ?? ""
+            }
+        }
         
     }
 }
 
 struct EditView_Previews: PreviewProvider {
     static var previews: some View {
-        EditView(show: .constant(false))
+        EditView(editedTask: TaskViewModel(), show: .constant(false))
+            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+            .environmentObject(TaskViewModel())
             .preferredColorScheme(.dark)
             
     }
