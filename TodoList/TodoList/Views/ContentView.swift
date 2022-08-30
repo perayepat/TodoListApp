@@ -147,13 +147,14 @@ struct ContentView: View {
             Circle()
                 .frame(width: 40, height: 40)
                 .background(.black.opacity(0.9), in: Circle())
+                .foregroundColor(Color.secondary)
             Image(systemName: "plus")
                 .font(.title)
                 .onTapGesture {
                     isAddingItem.toggle()
                     showKeyboardView.toggle()
                 }
-                .foregroundStyle(.white)
+                .foregroundColor(.primary)
             if dragIsActive{
                 BlobView(width: 50, height: 50)
                     .shadow(color: .white.opacity(0.9), radius: 5, x: 2, y: 2)
@@ -262,7 +263,7 @@ struct ContentView: View {
     
     var TodayRowCardView: some View {
         ForEach(tasks){ task in
-            if(task.isArchived == false && task.isCompleted == false){
+//            if(task.isArchived == false && task.isCompleted == false){
             HStack(alignment: editButton?.wrappedValue == .active ? .center : .top, spacing: 10){
                 if editButton?.wrappedValue == .active{
                     VStack(spacing: 10){
@@ -297,20 +298,20 @@ struct ContentView: View {
                         }))
                     }
                     TaskCardView(task: task)
-                        .onTapGesture(count: 2) {
+                        .onTapGesture{
                             showCard.toggle()
                             tasksModel.editTask = task
                         }
                     
                 }else{
                     TaskCardView(task: task)
-                        .onTapGesture(count: 2) {
+                        .onTapGesture{
                             showCard.toggle()
                             tasksModel.editTask = task
                         }
                 }
             }
-            }
+//            }
         }
     }
 }
@@ -320,6 +321,7 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView(tasksModel: TaskViewModel())
+            .preferredColorScheme(.dark)
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
             .environmentObject(TaskViewModel())
     }
@@ -360,34 +362,40 @@ struct TaskCardView: View {
                     .padding(.bottom,2)
                 
                 Spacer()
-                //MARK: - check buttom
-                Button {
-                    task.isCompleted.toggle()
-                    task.taskDate = Date()
-                    try? viewContext.save()
-                } label: {
-                    Image(systemName:task.isCompleted ? "checkmark.seal.fill" : "checkmark.circle")
-                        .imageScale(.large)
-                        .font(.caption)
-                        .foregroundStyle(.gray)
+                //MARK: - check buttons
+                VStack{
+                    Button {
+                        task.isCompleted.toggle()
+                        task.taskDate = Date()
+                        try? viewContext.save()
+                    } label: {
+                        Image(systemName:task.isCompleted ? "checkmark.seal.fill" : "checkmark.circle")
+                            .imageScale(.large)
+                            .font(.caption)
+                            .foregroundStyle(.gray)
+                    }
+                    
+
                 }
             }
             
-            VStack(alignment: .leading) {
-                Text(task.taskDescription ?? "")
-                    .font(.footnote)
-                    .fontWeight(.light)
-                    .lineLimit(2)
-                if task.isCompleted{
-                    Text("Completed on: \(task.taskDate!.formatted(.dateTime.day().month()))")
-                        .font(.caption)
-                        .padding(.vertical, 2)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }else{
-                Text(task.taskDate?.formatted() ?? Date().formatted(.dateTime.weekday(.wide)))
-                    .font(.caption)
-                    .padding(.vertical, 2)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            HStack(alignment: .bottom){
+                VStack(alignment: .leading) {
+                    Text(task.taskDescription ?? "")
+                        .font(.footnote)
+                        .fontWeight(.light)
+                        .lineLimit(2)
+                    if task.isCompleted{
+                        Text("Completed on: \(task.taskDate!.formatted(.dateTime.day().month()))")
+                            .font(.caption)
+                            .padding(.vertical, 2)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }else{
+                        Text(task.taskDate?.formatted() ?? Date().formatted(.dateTime.weekday(.wide)))
+                            .font(.caption)
+                            .padding(.vertical, 2)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
             }
         }

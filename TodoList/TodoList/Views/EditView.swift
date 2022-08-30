@@ -37,13 +37,13 @@ struct EditView: View {
                     }else{
                     editedTask.editTask?.taskTitle = taskTitle
                     editedTask.editTask?.taskDescription = taskDescription
-                    taskTitle = ""
-                    taskDescription = ""
+//                    taskTitle = ""
+//                    taskDescription = ""
                     
                     try? viewContext.save()
                         
                     }
-                    dismiss()
+                    show.toggle()
                 }label: {
                     Text("Save")
                         .font(.caption.bold())
@@ -53,7 +53,6 @@ struct EditView: View {
                 }
                 Button{
                     show.toggle()
-                    dismiss()
                 }label: {
                     Image(systemName: "xmark")
                         .font(.caption.bold())
@@ -108,6 +107,13 @@ struct EditView: View {
         .cornerRadius(30,corners: [.topLeft,.topRight])
         .shadow(radius: 20)
         .onAppear{
+            if let task = editedTask.editTask {
+                taskTitle =  task.taskTitle ?? ""
+                taskDescription =  task.taskDescription ?? ""
+                taskDate = task.taskDate?.formatted() ?? ""
+            }
+        }
+        .onChange(of: show) { newValue in
             if let task = editedTask.editTask {
                 taskTitle =  task.taskTitle ?? ""
                 taskDescription =  task.taskDescription ?? ""
