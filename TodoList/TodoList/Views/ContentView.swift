@@ -9,6 +9,7 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
+    
     let persistenceController = PersistenceController.shared
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(sortDescriptors: []) var tasks: FetchedResults<Task>
@@ -49,32 +50,11 @@ struct ContentView: View {
             TopSectionView()
             //MARK: - Body Section
             ScrollView(.vertical,showsIndicators: false){
-                switch selectedTab {
-                case .home:
-                    TodayRowCardView
-                case .archived:
-                    ForEach(tasks){ task in
-                        if task.isArchived{
-                            TaskCardView(task: task)
-                                .onTapGesture(count: 2) {
-                                    showCard.toggle()
-                                    tasksModel.editTask = task
-                                }
-                        }
-                    }
-                case .done:
-                    ForEach(tasks){ task in
-                        if task.isCompleted{
-                            TaskCardView(task: task)
-                        }
-                    }
-                }
+                TodayRowCardView
             }
             .offset(y:10)
             .frame(height: 650)
             .padding()
-            
-            
             
             Color.black
                 .ignoresSafeArea()
@@ -147,7 +127,7 @@ struct ContentView: View {
                 .offset(x: showCard ? 300:0)
                 .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8), value: showCard)
             }
-            ItemEditPopUp(messageToShow: "Archvied")
+            ItemEditPopUp(messageToShow:isArchived ? "Unarchvied" : "Archived")
                 .offset(y: isArchived ? 370 : 1000)
                 .animation(.spring(response: 0.6, dampingFraction: 0.6), value: isArchived)
         }
@@ -215,41 +195,11 @@ struct ContentView: View {
                 .focused($showKeyboardView)
                 .font(.caption)
                 .padding()
-//                .toolbar {
-//                    ToolbarItemGroup(placement: .keyboard) {
-//                        HStack{
-//                            Spacer()
-//                            Button{
-////                                if taskTitle == "title"{
-////
-////                                }else{
-//                                let newTask  = Task(context: viewContext)
-//                                newTask.taskTitle = taskTitle
-//                                newTask.taskDescription = taskDescription
-//                                newTask.taskDate = Date()
-//
-//                                taskTitle = ""
-//                                taskDescription = ""
-//
-//                                try? viewContext.save()
-//                                    showKeyboardView.toggle()
-////                                }
-//
-//                            }label: {
-//                                Image(systemName: "arrow.up.circle.fill")
-//                                    .imageScale(.large)
-//                                    .foregroundColor(.black)
-//                            }
-//                        }
-//                        .padding(10)
-//                    }
-//                }
+            
             HStack{
                 Spacer()
                 Button{
-//                                if taskTitle == "title"{
-//
-//                                }else{
+
                     let newTask  = Task(context: viewContext)
                     newTask.taskTitle = taskTitle
                     newTask.taskDescription = taskDescription
@@ -280,56 +230,164 @@ struct ContentView: View {
     
     var TodayRowCardView: some View {
         ForEach(tasks){ task in
-            if(task.isArchived == false && task.isCompleted == false){
-            HStack(alignment: editButton?.wrappedValue == .active ? .center : .top, spacing: 10){
-                if editButton?.wrappedValue == .active{
-                    VStack(spacing: 10){
-                        //MARK: - Archive Button
-                        Button {
-                            task.isArchived.toggle()
-                            try? viewContext.save()
-                            editButton?.wrappedValue = .inactive
-                            isArchived = true
-                        } label: {
-                            Image(systemName: "doc.fill.badge.plus")
-                                .font(.title3)
-                                .foregroundColor(.primary)
+            
+            switch selectedTab {
+            case .home:
+                if(task.isArchived == false && task.isCompleted == false){
+                HStack(alignment: editButton?.wrappedValue == .active ? .center : .top, spacing: 10){
+                    if editButton?.wrappedValue == .active{
+                        VStack(spacing: 10){
+                            //MARK: - Archive Button
+                            Button {
+                                task.isArchived.toggle()
+                                try? viewContext.save()
+                                editButton?.wrappedValue = .inactive
+                                isArchived = true
+                            } label: {
+                                Image(systemName: "doc.fill.badge.plus")
+                                    .font(.title3)
+                                    .foregroundColor(.primary)
+                            }
+                            //MARK: - Delete Button
+                            Button {
+                                isDeleting.toggle()
+                            } label: {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.red)
+                            }
                         }
-                        //MARK: - Delete Button
-                        Button {
-                            isDeleting.toggle()
-                        } label: {
-                            Image(systemName: "minus.circle.fill")
-                                .font(.title2)
-                                .foregroundColor(.red)
+                        .alert(isPresented: $isDeleting) {
+                            Alert(title: Text("Are you sure ?"),
+                                  message: Text("You are about to delete a task"),
+                                  primaryButton: .destructive(Text("Delete"), action: {
+                                viewContext.delete(task)
+                                try? viewContext.save()
+                            }),
+                                  secondaryButton: .default(Text("Cancel"), action: {
+                                dismissal()
+                            }))
                         }
+                        TaskCardView(task: task)
+                            .onTapGesture{
+                                showCard.toggle()
+                                tasksModel.editTask = task
+                            }
+                        
+                    }else{
+                        TaskCardView(task: task)
+                            .onTapGesture{
+                                showCard.toggle()
+                                tasksModel.editTask = task
+                            }
                     }
-                    .alert(isPresented: $isDeleting) {
-                        Alert(title: Text("Are you sure ?"),
-                              message: Text("You are about to delete a task"),
-                              primaryButton: .destructive(Text("Delete"), action: {
-                            viewContext.delete(task)
-                            try? viewContext.save()
-                        }),
-                              secondaryButton: .default(Text("Cancel"), action: {
-                            dismissal()
-                        }))
-                    }
-                    TaskCardView(task: task)
-                        .onTapGesture{
-                            showCard.toggle()
-                            tasksModel.editTask = task
-                        }
-                    
-                }else{
-                    TaskCardView(task: task)
-                        .onTapGesture{
-                            showCard.toggle()
-                            tasksModel.editTask = task
-                        }
                 }
-            }
-                
+                    
+                }
+            case .archived:
+                if(task.isArchived){
+                HStack(alignment: editButton?.wrappedValue == .active ? .center : .top, spacing: 10){
+                    if editButton?.wrappedValue == .active{
+                        VStack(spacing: 10){
+                            //MARK: - Archive Button
+                            Button {
+                                task.isArchived.toggle()
+                                try? viewContext.save()
+                                editButton?.wrappedValue = .inactive
+                                isArchived = true
+                            } label: {
+                                Image(systemName: "doc.fill.badge.plus")
+                                    .font(.title3)
+                                    .foregroundColor(.primary)
+                            }
+                            //MARK: - Delete Button
+                            Button {
+                                isDeleting.toggle()
+                            } label: {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.red)
+                            }
+                        }
+                        .alert(isPresented: $isDeleting) {
+                            Alert(title: Text("Are you sure ?"),
+                                  message: Text("You are about to delete a task"),
+                                  primaryButton: .destructive(Text("Delete"), action: {
+                                viewContext.delete(task)
+                                try? viewContext.save()
+                            }),
+                                  secondaryButton: .default(Text("Cancel"), action: {
+                                dismissal()
+                            }))
+                        }
+                        TaskCardView(task: task)
+                            .onTapGesture{
+                                showCard.toggle()
+                                tasksModel.editTask = task
+                            }
+                        
+                    }else{
+                        TaskCardView(task: task)
+                            .onTapGesture{
+                                showCard.toggle()
+                                tasksModel.editTask = task
+                            }
+                    }
+                }
+                    
+                }
+            case .done:
+                if(task.isCompleted){
+                HStack(alignment: editButton?.wrappedValue == .active ? .center : .top, spacing: 10){
+                    if editButton?.wrappedValue == .active{
+                        VStack(spacing: 10){
+                            //MARK: - Archive Button
+                            Button {
+                                task.isArchived.toggle()
+                                try? viewContext.save()
+                                editButton?.wrappedValue = .inactive
+                                isArchived = true
+                            } label: {
+                                Image(systemName: "doc.fill.badge.plus")
+                                    .font(.title3)
+                                    .foregroundColor(.primary)
+                            }
+                            //MARK: - Delete Button
+                            Button {
+                                isDeleting.toggle()
+                            } label: {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.red)
+                            }
+                        }
+                        .alert(isPresented: $isDeleting) {
+                            Alert(title: Text("Are you sure ?"),
+                                  message: Text("You are about to delete a task"),
+                                  primaryButton: .destructive(Text("Delete"), action: {
+                                viewContext.delete(task)
+                                try? viewContext.save()
+                            }),
+                                  secondaryButton: .default(Text("Cancel"), action: {
+                                dismissal()
+                            }))
+                        }
+                        TaskCardView(task: task)
+                            .onTapGesture{
+                                showCard.toggle()
+                                tasksModel.editTask = task
+                            }
+                        
+                    }else{
+                        TaskCardView(task: task)
+                            .onTapGesture{
+                                showCard.toggle()
+                                tasksModel.editTask = task
+                            }
+                    }
+                }
+                    
+                }
             }
         }
     }

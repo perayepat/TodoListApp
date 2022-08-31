@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EditView: View {
-//    var focusField: FocusState<UUID?>.Binding
+    //    var focusField: FocusState<UUID?>.Binding
     
     var editedTask: TaskViewModel
     @Binding var show: Bool
@@ -20,101 +20,104 @@ struct EditView: View {
     @Environment(\.managedObjectContext) private var viewContext
     
     var body: some View {
-        VStack {
-            Rectangle()
-                .frame(width: 40, height: 5)
-                .cornerRadius(3)
-                .foregroundColor(.black)
-                .opacity(0.1)
-            HStack {
-                Text("Title")
-                    .bold()
-                    .foregroundStyle(.black.opacity(0.6))
-                Spacer()
-                Button{
-                    //MARK: - Save Changes
-                    if taskTitle == "title"{
-                        
-                    }else{
-                    editedTask.editTask?.taskTitle = taskTitle
-                    editedTask.editTask?.taskDescription = taskDescription
-                    try? viewContext.save()
-                        
+        VStack(spacing:15 ){
+            VStack{
+                Rectangle()
+                    .frame(width: 40, height: 5)
+                    .cornerRadius(3)
+                    .foregroundColor(.black)
+                    .opacity(0.1)
+                    .offset(y:10)
+                HStack {
+                    Text("Title")
+                        .bold()
+                        .foregroundStyle(.black.opacity(0.6))
+                    Spacer()
+                    Button{
+                        //MARK: - Save Changes
+                        if taskTitle == "title"{
+                            
+                        }else{
+                            editedTask.editTask?.taskTitle = taskTitle
+                            editedTask.editTask?.taskDescription = taskDescription
+                            try? viewContext.save()
+                            
+                        }
+                        show.toggle()
+                    }label: {
+                        Text("Save")
+                            .font(.caption.bold())
+                            .padding(10)
+                            .background(.black.opacity(0.2) , in: RoundedRectangle(cornerRadius: 25, style: .continuous))
+                            .foregroundColor(.black.opacity(0.5))
                     }
-                    show.toggle()
-                }label: {
-                    Text("Save")
-                        .font(.caption.bold())
-                        .padding(10)
-                        .background(.black.opacity(0.2) , in: RoundedRectangle(cornerRadius: 25, style: .continuous))
-                        .foregroundColor(.black.opacity(0.5))
+                    Button{
+                        show.toggle()
+                    }label: {
+                        Image(systemName: "xmark")
+                            .font(.caption.bold())
+                            .padding(10)
+                            .background(.black.opacity(0.2) , in: Circle())
+                            .foregroundColor(.black.opacity(0.5))
+                    }
                 }
-                Button{
-                    show.toggle()
-                }label: {
-                    Image(systemName: "xmark")
-                        .font(.caption.bold())
-                        .padding(10)
-                        .background(.black.opacity(0.2) , in: Circle())
-                        .foregroundColor(.black.opacity(0.5))
+                .padding()
+                HStack{
+                    Button{
+                        //MARK: - mark as done
+                        itemChecked.toggle()
+                        editedTask.editTask?.isCompleted.toggle()
+                        try? viewContext.save()
+                    }label: {
+                        Image(systemName: itemChecked ? "circle.fill" : "circle")
+                            .font(.title2.weight(.light))
+                            .foregroundColor(.black)
+                    }
+                    TextField("Title", text: $taskTitle)
+                    Spacer()
                 }
-            }
-            .padding()
-            HStack{
-                Button{
-                    //MARK: - mark as done
-                    itemChecked.toggle()
-                    editedTask.editTask?.isCompleted.toggle()
-                    try? viewContext.save()
-                }label: {
-                    Image(systemName: itemChecked ? "circle.fill" : "circle")
-                        .font(.title2.weight(.light))
-                        .foregroundColor(.black)
+                .padding()
+                
+                HStack{
+                    Image(systemName: "calendar")
+                        .font(.title2.bold())
+                        .foregroundStyle(.black.opacity(0.3))
+                    Text(taskDate)
+                        .font(.caption)
+                        .foregroundStyle(.black.opacity(0.3))
+                    Spacer()
                 }
-                TextField("Title", text: $taskTitle)
-                Spacer()
-            }
-            .padding()
-//            .onChange(of: editedTask.editTask?.isCompleted) { newValue in
-//                
-//            }
-            
-            HStack{
-                Image(systemName: "calendar")
-                    .font(.title2.bold())
-                    .foregroundStyle(.black.opacity(0.3))
-                Text(taskDate)
-                    .font(.caption)
-                    .foregroundStyle(.black.opacity(0.3))
-                Spacer()
-            }
-            .padding(.horizontal)
-            Divider()
+                .padding(.horizontal)
                 .frame(width: 350)
                 .padding(.vertical)
-            HStack{
-                Text("Description")
-                    .bold()
-                    .foregroundStyle(.black.opacity(0.6))
-                Spacer()
             }
-            .padding()
-            TextField("Task Description", text: $taskDescription)
+            
+            .background(.white, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .frame(width: 390, height: 190)
+            
+            VStack{
+                HStack{
+                    Text("Description")
+                        .bold()
+                        .foregroundStyle(.black.opacity(0.6))
+                    Spacer()
+                }
                 .padding()
+                TextField("Task Description", text: $taskDescription)
+                    .padding()
+            }
+            .frame(width: 390)
+            .padding(.top)
+            .frame(maxHeight:.infinity,alignment: .top)
+            .background(.white, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+          
         }
         .padding(.top,8)
         .padding(.horizontal,10)
         .frame(maxHeight: .infinity,alignment: .top)
-        .background(.white)
+        .background(.gray)
         .cornerRadius(30,corners: [.topLeft,.topRight])
         .shadow(radius: 20)
-        .onAppear{
-            if let task = editedTask.editTask {
-                taskTitle =  task.taskTitle ?? ""
-                taskDescription =  task.taskDescription ?? ""
-                taskDate = task.taskDate?.formatted() ?? ""
-            }
-        }
         .onChange(of: show) { newValue in
             if let task = editedTask.editTask {
                 taskTitle =  task.taskTitle ?? ""
@@ -133,6 +136,6 @@ struct EditView_Previews: PreviewProvider {
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
             .environmentObject(TaskViewModel())
             .preferredColorScheme(.dark)
-            
+        
     }
 }

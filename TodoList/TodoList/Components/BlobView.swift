@@ -22,6 +22,7 @@ struct BlobView: View {
             let x2 = cos(angle2.radians)
             
             Canvas{ context , size in
+                
                 context.fill(path(in: CGRect(x: 0, y: 0, width: size.width, height: size.height), x: x, x2: x2), with:
                         .linearGradient(Gradient(colors: [Color(hex: "ffd6a5"),Color(hex: "ffc6ff")]), startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 300, y: 100))
                 )
