@@ -16,8 +16,7 @@ struct TodoListApp: App {
         WindowGroup {
             
             if isActive {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                HomeView()
             } else{
                 SplashScreenView(isActive: $isActive)
             }

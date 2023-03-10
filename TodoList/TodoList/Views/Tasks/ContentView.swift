@@ -12,6 +12,7 @@ struct ContentView: View {
     
     let persistenceController = PersistenceController.shared
     @Environment(\.managedObjectContext) private var viewContext
+    
     @FetchRequest(sortDescriptors: []) var tasks: FetchedResults<Task>
     
     @StateObject var tasksModel = TaskViewModel()
@@ -427,6 +428,7 @@ struct TopSectionView: View {
         }
     }
 }
+
 struct TaskCardView: View {
     var task: Task
     @Environment(\.managedObjectContext) private var viewContext
